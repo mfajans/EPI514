@@ -2,12 +2,12 @@
 
 #This project acts as a repository for code, data and other supporting documents for the EPI514 project. Branches are divded into:
 
-Raw Data
-Analytical Data
-Code
-Data Management Code
-Analytical Code
-Tables
-Figures
+1. Raw Data
+2. Analytical Data
+3. Code
+4. Data Management Code
+5. Analytical Code
+6. Tables
+7. Figures
   
   
