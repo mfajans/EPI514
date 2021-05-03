@@ -565,6 +565,67 @@ summary(brfss$SEX)
 table(brfss$birthsex)
 summary(brfss$birthsex)
 
+
+#BMI Category - 5.2.21 Mark
+
+table(brfss$X_BMI5CAT, useNA = "always")
+
+brfss<-brfss %>% mutate(bmi_cat = case_when(X_BMI5CAT==1 ~ 1, #Underweight
+                                          X_BMI5CAT==2 ~ 2, #Normal Weight
+                                          X_BMI5CAT==3 ~ 3, #Overweight
+                                          X_BMI5CAT==4 ~ 4  #Obese  
+                                          ))
+
+brfss$bmi_cat  <-  factor(brfss$bmi_cat, 
+                           levels = c(1, 2, 3, 4), 
+                           labels=c("Underweight", 
+                                    "Normal Weight",
+                                    "Overweight",
+                                    "Obese"))	
+
+#Checking variable creation
+table(brfss$X_BMI5CAT, brfss$bmi_cat, useNA = "always")
+
+#Checking missingness
+table(brfss$bmi_cat, useNA="always")
+# Underweight   Normal Weight    Overweight         Obese          <NA> 
+# 18738        344632            393591             340443         101921 
+
+
+
+#Household income
+table(brfss$X_INCOMG, useNA = "always")
+#1      2      3      4      5      9           <NA> 
+#93606  160241 104248 137881 496053 207296      0 
+#Need to recode 9 as NA
+
+brfss<-brfss %>% mutate(hsld_inc = case_when(X_INCOMG==1 ~ 1, #<15,000
+                                             X_INCOMG==2 ~ 2, #15,000 - <25,000 
+                                             X_INCOMG==3 ~ 3, #25,000 - <35,000
+                                             X_INCOMG==4 ~ 4, #35,000 - <50,000
+                                             X_INCOMG==5 ~ 5 #50,000+
+                                             #X_INCOMG==9 ~ NA #Missing
+                                             ))        
+brfss$hsld_inc[brfss$X_INCOMG==9]<-NA
+
+brfss$hsld_inc  <-  factor(brfss$hsld_inc, 
+                          levels = c(1, 2, 3, 4, 5), 
+                          labels=c("<15,000", 
+                                   "15,000 - <25,000",
+                                   "25,000 - <35,000",
+                                   "35,000 - <50,000",
+                                   "50,000+"))	
+
+
+#Checking variable creation
+table(brfss$X_INCOMG, brfss$hsld_inc, useNA = "always")
+
+#Checking missingness
+table(brfss$hsld_inc, useNA = "always")
+
+#1     2      3      4      5      <NA> 
+#93606 160241 104248 137881 496053 207296 
+
 #Label variables for Table 1
 #table1::label(brfss$age_grp) <- "Age (years)"
 table1::label(brfss$birthsex) <- "Sex at Birth"
