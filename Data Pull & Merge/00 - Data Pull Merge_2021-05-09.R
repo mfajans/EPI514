@@ -1135,6 +1135,19 @@ table(brfss$gender_re2, brfss$fluvax_re, useNA = "always")
 table(brfss$gender_re, useNA = "always")
 table(brfss$gender_re2, useNA = "always")
 
+# NO Fluvax
+brfss <- brfss %>% mutate(nofluvax_re = case_when(FLUSHOT6 == 2 ~ 1, # No Flu Vax = Yes (aka no flu vax)
+                                                  FLUSHOT6 == 1 ~ 2)) # No Flu Vax = No (aka yes flu vax)
+brfss$nofluvax_re  <-  factor(brfss$nofluvax_re, 
+                              levels = c(1, 2), 
+                              labels=c("No Influenza Vaccination", 
+                                       "Influenza Vaccination"))	
+#Check
+table(brfss$FLUSHOT6,  useNA = "always")
+table(brfss$fluvax,  useNA = "always")
+table(brfss$fluvax_re,  useNA = "always")
+table(brfss$nofluvax_re,  useNA = "always")
+
 # Gender Equality Tally
 brfss <- brfss %>% mutate(equality = case_when(state == "Alaska" ~ 0,
                                                state == "Arizona" ~ 1,
