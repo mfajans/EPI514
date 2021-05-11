@@ -2,7 +2,7 @@
 #EPI514 Project
 #Coders: Collrane Frivold, Sarah Cox, Mark Fajans
 #Weighted Table 2 script 
-#Updated: May 10, 2021
+#Updated: May 11, 2021
 ################################################################################
 
 
@@ -16,8 +16,8 @@ memory.limit(size=500000)
 options(width=150)
 #Set directory 
 #Sarah's Directory
-#setwd("/Users/sarahcox/Desktop/PhD/2021 Spring/S21_EPI514_ApplicationEpiMethods/data/BRFSS/XPT Files/")
-#dataDir <- "/Users/sarahcox/Desktop/PhD/2021 Spring/S21_EPI514_ApplicationEpiMethods/data/BRFSS/XPT Files/"
+setwd("/Users/sarahcox/Desktop/PhD/2021 Spring/S21_EPI514_ApplicationEpiMethods/data)")
+dataDir <- "/Users/sarahcox/Desktop/PhD/2021 Spring/S21_EPI514_ApplicationEpiMethods/data/"
 #Mark's directory
 #setwd("~/Mark's Work/UW/Classes/Spring 2021/EPI 514 - Applications of Epi/Data/Compiled Files")
 #dataDir <- "~/Mark's Work/UW/Classes/Spring 2021/EPI 514 - Applications of Epi/Data/Compiled Files"
