@@ -12,6 +12,8 @@
 rm(list = ls())
 #set memory limit (PC only)
 memory.limit(size=500000)
+#set memory limit (Mac)
+Sys.setenv('R_MAX_VSIZE'=32000000000)
 #Widen the screen so that you can see the commands better 
 options(width=150)
 #Set directory 
@@ -32,7 +34,8 @@ options(width=150)
   library(table1)
   library(progress)
   library(epiR)
-  library(kableExtra)  
+  library(kableExtra) 
+  library(readr)
 #Load data 
   #File created at the end of the data pull merge script
   brfss2015_2019 <- readRDS(paste0(dataDir, "brfss2015_2019.rds")) 
@@ -73,6 +76,21 @@ table1a_unweighted <- table1(~ sexorient
                         + dataYear_cat | gender_re, data = brfss2015_2019,
                         render.missing=NULL, render.categorical ="FREQ (PCTnoNA%)", overall= "Total")
 table1a_unweighted 
+
+table1a_unweighted <- table1(~ sexorient
+                             + age_grp
+                             + race_re 
+                             + edu_cat
+                             + employ_recat_re
+                             + health_coverage_re
+                             + medcost_re
+                             + mentalhlth_re
+                             # + birthsex_re
+                             # + bmi_cat
+                             # + hsld_inc
+                             + dataYear_cat | gender_re, data = brfss2015_2019,
+                             render.missing=NULL, render.categorical ="FREQ (PCTnoNA%)", overall= "Total")
+table1a_unweighted 
   
 ## Table 1b Unweighted
 table1b_unweighted  <- table1(~ sexorient
@@ -104,68 +122,63 @@ design <- svydesign(data = brfss2015_2019,
                     id = ~1, 
                     strata = ~ststr, 
                     weights = ~finalwt)
-#*****NOTE: Sarah can't get this to run properly due to memory limit on Mac**********#
-#See following error:
-#   Error in h(simpleError(msg, call)) : error in evaluating the argument 'x' in 
-#   selecting a method for function 'rowSums': vector memory exhausted (limit reached?)
-#Posted on discussion board
 
 design # check
 
 #save design object 
-#Save file and then you don't have to rerun the weighting which takes ~20 mins
+#Save file and then you don't have to rerun the weighting 
 write_rds(design, paste0(dataDir, "design.rds")) #save
   design <- readRDS(paste0(dataDir, "design.rds")) #check
 
 ################################################################################
 
 
-##Create weighted Table 1 using TableOne##     
+##Create weighted Table 1 using TableOne## Archived bc very slow    
 ################################################################################
 #Covariates for table 
-vars <- c("sexorient","age_grp", "race", "edu_cat", "hsld_inc",
+#vars <- c("sexorient","age_grp", "race", "edu_cat", "hsld_inc",
           "employ_recat", "health_coverage", "medcost_re", 
           "mentalhlth", "dataYear_cat")
   
 #Use TableOne to created weighted table
-tab1_weighted <- svyCreateTableOne(vars = vars, strata = "gender_re", 
-                                   data = design, test = FALSE)
+#tab1_weighted <- svyCreateTableOne(vars = vars, strata = "gender_re", 
+#                                   data = design, test = FALSE)
 
 #Use TableOne to created weighted table with race only 
-tab1_weighted <- svyCreateTableOne(vars = "race_re", strata = "gender_re", 
-                                   data = design, test = FALSE)
+#tab1_weighted <- svyCreateTableOne(vars = "race_re", strata = "gender_re", 
+#                                   data = design, test = FALSE)
 
 #Create a for loop 
 #Made this, but it never fully ran so don't know if it would work 
-for (x in vars) {
-  tab1_weighted <- svyCreateTableOne(vars = x, strata = "gender_re", 
-                                     data = design, test = FALSE)
-}
+#for (x in vars) {
+#  tab1_weighted <- svyCreateTableOne(vars = x, strata = "gender_re", 
+#                                     data = design, test = FALSE)
+#}
 
 #show table
-tab1_weighted #default formatting 
-summary(tab1_weighted) #detailed output 
+#tab1_weighted #default formatting 
+#summary(tab1_weighted) #detailed output 
 
 #format table using kable 
-options(knitr.table.format = "word") 
-p <- print(tab1_weighted, printToggle = FALSE, noSpaces = TRUE)
-kable(p, format = "latex")
+#options(knitr.table.format = "word") 
+#p <- print(tab1_weighted, printToggle = FALSE, noSpaces = TRUE)
+#kable(p, format = "latex")
 
 # directly with the tableone wrapper for the kable function
-kableone(tab1_weighted, booktabs = TRUE, format = "latex")
+#kableone(tab1_weighted, booktabs = TRUE, format = "latex")
 
-tab1_weighted <- print(tab1_weighted)
-kbl(p, booktabs = TRUE, format = "latex")
+#tab1_weighted <- print(tab1_weighted)
+#kbl(p, booktabs = TRUE, format = "latex")
 
 #print pretty table 
-tab1_weighted %>%
-  kbl(caption = "Weighted table 1 - Race only") %>%
-  kable_classic(full_width = F, html_font = "Calibri")
+#tab1_weighted %>%
+#  kbl(caption = "Weighted table 1 - Race only") %>%
+#  kable_classic(full_width = F, html_font = "Arial")
 
 ################################################################################        
 
 
-##Weighted table using survey package##
+##Weighted table using survey package## NOTE: still workin on this for all variables
 ################################################################################        
 
 #Table for race variable only 
