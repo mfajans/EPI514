@@ -26,7 +26,6 @@ library(tidyverse)
 # plyr allows you to combine data frames that do not have perfectly matching column names
 library(plyr)
 library(dplyr)
-library(table1)
 library(knitr)
 
 # load brfss data from CDC website
