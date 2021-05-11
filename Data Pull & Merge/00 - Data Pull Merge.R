@@ -482,7 +482,7 @@ brfss19$finalwt <- brfss19$finalwt*prop_19
 #266291    345
 
 brfss <-rbind.fill (brfss15, brfss16, brfss17, brfss18, brfss19) 
-#dim(brfss)
+dim(brfss)
 #1199325     609
 
 # Confirmed rows: 199,113+232,881+239,173+261,867+266,291=1,199,325 rows
@@ -1222,7 +1222,7 @@ brfss$prace_re[brfss$X_PRACE1==99]<-NA #missing
 #Drop variables we don't need
 brfss2015_2019 <-  brfss %>% dplyr::select(psu, ststr, state, finalwt,
                                            gender_re, gender_re2,
-                                           fluvax, fluvax_re, 
+                                           fluvax, fluvax_re, nofluvax_re,
                                            equality,
                                            birthsex_re,
                                            sexorient,
@@ -1245,7 +1245,7 @@ brfss2015_2019 <-  brfss %>% dplyr::select(psu, ststr, state, finalwt,
 #Get numbers for Study Flow Diagram (before dropping)
 
 #Number of respondents each year
-#table(brfss2015_2019$dataYear_cat, useNA = "always")
+table(brfss2015_2019$dataYear_cat, useNA = "always")
 #  2015   2016   2017   2018   2019   <NA> 
 #199113 232881 239173 261867 266291      0 
 
@@ -1274,7 +1274,7 @@ table(brfss$gender_re, brfss2015_2019$fluvax_re, useNA = "always")
 
 #Drop missing gender
 brfss2015_2019<-brfss2015_2019 %>% filter(!is.na(gender_re))
-#dim(brfss2015_2019)
+dim(brfss2015_2019)
 #1037081      24
 
 #Dropping missing fluvax
@@ -1287,7 +1287,7 @@ brfss2015_2019<-brfss2015_2019 %>% filter(!is.na(gender_re))
 
 #Drop missing fluvax_re
 brfss2015_2019<-brfss2015_2019 %>% filter(!is.na(fluvax_re))
-#dim(brfss2015_2019)
+dim(brfss2015_2019)
 #1016012      24
 
 
