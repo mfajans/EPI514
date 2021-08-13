@@ -418,7 +418,119 @@ mentalhlth_gender_re<-svyglm(as.numeric(mentalhlth_re)~gender_re, brfss_svy, fam
 #Doesn't look like a major difference, would not include as an effect modifier
 
 #Effect modifier: Age
+####8.12.21 change - Switching back to combining cisgender women and men, and using as reference group
         
+#Crude PR-combined cisgender for reference
+crudePR3a<-svyglm(nofluvax_bin ~ gender_re2, 
+                                  design =brfss_svy,
+                                  family = quasibinomial(link = "log"))
+         
+        summary(crudePR3a)
+        exp(coef(crudePR3a))
+        exp(confint(crudePR3a))
+
+##Assessing for effect modification
+#Age
+                
+  svytable(~nofluvax_bin + gender_re2 + age_grp, brfss_svy) %>%
+  prop.table(margin = 2)
+        
+        age1 <- svyglm(nofluvax_bin ~ gender_re2, 
+                       design = subset(brfss_svy, age_grp == "18-24"),
+                       family = quasibinomial(link = "log"))
+        
+        age2 <- svyglm(nofluvax_bin ~ gender_re2, 
+                       design = subset(brfss_svy, age_grp == "25-34"),
+                       family = quasibinomial(link = "log"))
+        
+        age3 <- svyglm(nofluvax_bin ~ gender_re2, 
+                       design = subset(brfss_svy, age_grp == "35-44"),
+                       family = quasibinomial(link = "log"))
+        
+        age4 <- svyglm(nofluvax_bin ~ gender_re2, 
+                       design = subset(brfss_svy, age_grp == "45-54"),
+                       family = quasibinomial(link = "log"))
+        
+        age5 <- svyglm(nofluvax_bin ~ gender_re2, 
+                       design = subset(brfss_svy, age_grp == "55-64"),
+                       family = quasibinomial(link = "log"))
+        
+        age6 <- svyglm(nofluvax_bin ~ gender_re2, 
+                       design = subset(brfss_svy, age_grp == "65+"),
+                       family = quasibinomial(link = "log"))   
+        
+        
+        exp(coef(age1))
+        exp(coef(age2))
+        exp(coef(age3))
+        exp(coef(age4))
+        exp(coef(age5))
+        exp(coef(age6)) #Pretty significant increase across all gender identities in this age group, would consider incorporating as an effect modifier
+        
+        exp(confint(age1))
+        exp(confint(age2))
+        exp(confint(age3))
+        exp(confint(age4))
+        exp(confint(age5))
+        exp(confint(age6))
+        
+        
+        #Health insurance status
+        svytable(~nofluvax_bin + gender_re2 + health_coverage_re, brfss_svy) %>%
+                prop.table(margin = 2)
+        
+        healthcov_yes <- svyglm(nofluvax_bin ~ gender_re2, 
+                                design = subset(brfss_svy, health_coverage_re == "Yes"),
+                                family = quasibinomial(link = "log"))
+        
+        healthcov_no <- svyglm(nofluvax_bin ~ gender_re2, 
+                               design = subset(brfss_svy, health_coverage_re == "No"),
+                               family = quasibinomial(link = "log"))
+        
+        exp(coef(healthcov_yes))
+        exp(coef(healthcov_no))  #Possibly among non-binary?
+        
+        exp(confint(healthcov_yes))
+        exp(confint(healthcov_no))
+        
+         
+        
+        
+#Poor Healthcare access
+svytable(~nofluvax_bin + gender_re2 + medcost_re, brfss_svy) %>%
+                prop.table(margin = 2)
+        
+medcost_yes <- svyglm(nofluvax_bin ~ gender_re2, 
+                              design = subset(brfss_svy, medcost_re == "Yes"),
+                              family = quasibinomial(link = "log"))
+        
+medcost_no <- svyglm(nofluvax_bin ~ gender_re2, 
+                             design = subset(brfss_svy, medcost_re == "No"),
+                             family = quasibinomial(link = "log"))
+        
+        exp(coef(medcost_yes))
+        exp(coef(medcost_no))
+        
+        exp(confint(medcost_yes))
+        exp(confint(medcost_no))
+        
+#Mental Health Status
+svytable(~nofluvax_bin + gender_re2 + mentalhlth_re, brfss_svy) %>%
+                prop.table(margin = 2)
+        
+mentalhtlh_bad <- svyglm(nofluvax_bin ~ gender_re2, 
+                                 design = subset(brfss_svy, mentalhlth_re == ">=14 days"),
+                                 family = quasibinomial(link = "log"))
+        
+mentalhlth_notbad <- svyglm(nofluvax_bin ~ gender_re2, 
+                                    design = subset(brfss_svy, mentalhlth_re == "<14 days"),
+                                    family = quasibinomial(link = "log"))
+        
+        exp(coef(medcost_yes))
+        exp(coef(medcost_no))
+        
+        exp(confint(medcost_yes))
+        exp(confint(medcost_no))         
         
 ####No flu Vaccine & state policy, by gender identity
 
