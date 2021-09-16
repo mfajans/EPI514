@@ -2,7 +2,7 @@
 #EPI514 Project
 #Coders: Collrane Frivold, Sarah Cox, Mark Fajans
 #Data Pull & Merging
-#Last Updated: May 11, 2021
+#Last Updated: September 15, 2021
 ##########################################
 
 
@@ -628,6 +628,7 @@ brfss$sexorient  <-  factor(brfss$sexorient,
                                      "Don't Know/ not sure",
                                      "Refused",
                                      "Missing"))	
+
 #Check
 #table(brfss$SXORIENT, useNA = "always")
 #     1      2      3      4      7      9   <NA> 
@@ -639,6 +640,25 @@ brfss$sexorient  <-  factor(brfss$sexorient,
 #Don't Know/ not sure              Refused              Missing                 <NA> 
 #               11753                18328               150993                    0 
 
+#Update sexual orientation variable to combine don't know/not sure, refused
+brfss <- brfss %>% mutate(sexualident = case_when(sexorient == "Straight" ~ 1, 
+                                               sexorient == "Lesbian or gay" ~ 2,
+                                               sexorient == "Bisexual" ~ 3, 
+                                               sexorient == "Other" ~ 4, 
+                                               (sexorient == "Don't Know/ not sure" | sexorient == "Refused" | sexorient == "Missing")  ~ 5)) 
+brfss$sexualident  <-  factor(brfss$sexualident, 
+                            levels = c(1, 2, 3, 4, 5),
+                            labels=c("Straight", 
+                                     "Lesbian or gay",
+                                     "Bisexual",
+                                     "Other",
+                                     "Don't Know/ not sure, Refused, Missing"))	
+
+#table(brfss$sexualident, useNA = "always")
+#Straight   Lesbian or gay     Bisexual    Other    Don't Know/ not sure, Refused, Missing   <NA> 
+#974615     16184              19606       7846     181074                                      0
+#>5% Don't Know/ not sure, Refused, Missing
+#table(brfss$sexorient, brfss$sexualident, useNA = "always")
 
 #Sex at Birth
 #check SEX
@@ -649,7 +669,7 @@ brfss <- brfss %>% mutate(birthsex = case_when(SEX == 1 ~ 1, #Male
                                                SEX == 2 ~ 2, #Female
                                                SEX == 7 ~ 7, #Don't Know/ not sure
                                                SEX == 9 ~ 9)) #Refused
-#table(brfss$birthsex, useNA = "always")
+table(brfss$birthsex, useNA = "always")
 #<5% missing
 #create new sexbirth_re: recode 7 (Don't know/not sure) and 9 (Refused) to NA
 brfss <- brfss %>% mutate(birthsex_re = case_when(SEX == 1 ~ 1, #Male
@@ -996,28 +1016,30 @@ brfss$mentalhlth_re <-  factor(brfss$mentalhlth_re,
 
 #Age Category
 
-#table(brfss$X_AGE_G, useNA = "always")
+table(brfss$X_AGE_G, useNA = "always")
 
 # 1     2      3      4      5      6        <NA> 
 # 69331 124585 139839 188309 255492 421769    0 
 
-brfss$age_grp<-brfss$X_AGE_G
+brfss<-brfss %>% mutate(age_grp = case_when(X_AGE_G==1 ~ 1, #18-24
+                                            (X_AGE_G==2 | X_AGE_G==3) ~ 2, #25-34, 35-44
+                                            (X_AGE_G==4 | X_AGE_G==5) ~ 3, #45-54, 55-64
+                                             X_AGE_G==6 ~ 4)) #65+
 
-brfss$age_grp<-factor(brfss$age_grp,
-                      levels=c(1:6),
-                      labels=c("18-24",
-                               "25-34",
-                               "35-44",
-                               "45-54",
-                               "55-64",
-                               "65+"
-                      ))
+
+
+brfss$age_grp <-  factor(brfss$age_grp, 
+                               levels = c(1:4),
+                               labels = c("18-24",
+                                          "25-44",
+                                          "45-64",
+                                          "65+"))
 
 #table(brfss$age_grp, brfss$X_AGE_G, useNA = "always")
 
-#table(brfss$age_grp)
-#18-24  25-34  35-44  45-54  55-64    65+ 
-#69331  124585 139839 188309 255492   421769 
+table(brfss$age_grp)
+#18-24  25-44  45-64    65+ 
+#69331 264424 443801 421769 
 
 # Year
 #table(brfss$dataYear, useNA="always")
@@ -1129,24 +1151,89 @@ brfss$equality<-factor(brfss$equality,
 #Protective    Restrictive        <NA> 
 #  674213      525112              0
 
+#Hispanic
+table(brfss$X_HISPANC, useNA = "always")
+#Add labels to hispanic variable
+brfss$ethnicity <- factor(brfss$X_HISPANC,
+                     levels = c(1, 2, 9),
+                     labels = c("Hispanic", 
+                                "Non-Hispanic",
+                                "Don´t Know, Refused or Missing"))
+#Check variable creation
+table(brfss$X_HISPANC, brfss$ethnicity, useNA = "always")
+
+#9 needs to be recoded as missing, <5%
+brfss<-brfss %>% mutate(ethnicity_re = case_when(X_HISPANC==1 ~ 1, 
+                                                X_HISPANC==2 ~ 2))        
+brfss$ethnicity_re[brfss$X_HISPANC==9]<-NA
+
+brfss$ethnicity_re  <-  factor(brfss$ethnicity_re, 
+                          levels = c(1, 2), 
+                          labels=c("Hispanic",
+                                   "Non-Hispanic"))	
+
+#Checking variable creation
+#table(brfss$X_HISPANC, brfss$ethnicity_re, useNA = "always")
+#Checking missingness
+#table(brfss$ethnicity_re, useNA = "always")
 
 #Race
-
 #Add labels to race variable
-brfss$race <- factor(brfss$X_RACE,
-                     levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                     labels = c("White, Non-Hispanic", 
-                                "Black, Non-Hispanic",
-                                "American Indian or Alaskan Native, Non-Hispanic",
-                                "Asian, non-Hispanic",
+table(brfss$X_PRACE1, useNA = "always")
+brfss$race <- factor(brfss$X_PRACE1,
+                     levels = c(1, 2, 3, 4, 5, 6, 7, 77, 99),
+                     labels = c("White", 
+                                "Black or African American",
+                                "American Indian or Alaskan Native",
+                                "Asian",
                                 "Native Hawaiian or other Pacific Islander",
-                                "Other race, Non-Hispanic",
-                                "Multiracial, Non-Hispanic",
-                                "Hispanic",
-                                "Don't know/Not sure/Refused"))
+                                "Other race",
+                                "No preferred race",
+                                "Don't know/not sure ",
+                                "Refused"))
+#Check variable creation
+table(brfss$X_PRACE1, brfss$race, useNA = "always")
+table(brfss$race, useNA = "always")
+# 7, 77, 99 need to be recoded as missing, <5% 
+brfss<-brfss %>% mutate(race_re = case_when(X_PRACE1==1 ~ 1, 
+                                            X_PRACE1==2 ~ 2, 
+                                            X_PRACE1==3 ~ 3, 
+                                            X_PRACE1==4 ~ 4,
+                                            X_PRACE1==5 ~ 5,
+                                            X_PRACE1==6 ~ 6))
+brfss$race_re[brfss$X_PRACE1==7]<-NA
+brfss$race_re[brfss$X_PRACE1==77]<-NA
+brfss$race_re[brfss$X_PRACE1==99]<-NA
+
+brfss$race_re  <-  factor(brfss$race_re, 
+                          levels = c(1:6), 
+                          labels=c("White", 
+                                   "Black or African American",
+                                   "American Indian or Alaskan Native",
+                                   "Asian",
+                                   "Native Hawaiian or other Pacific Islander",
+                                   "Other race"))	
+
+#Checking variable creation
+#table(brfss$X_PRACE1, brfss$race_re, useNA = "always")
+#Checking missingness
+#table(brfss$race_re, useNA = "always")
+
+#OLD CODE FOR X_RACE
+#brfss$race <- factor(brfss$X_RACE,
+#                     levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+#                     labels = c("White, Non-Hispanic", 
+#                                "Black, Non-Hispanic",
+#                                "American Indian or Alaskan Native, Non-Hispanic",
+#                                "Asian, non-Hispanic",
+#                                "Native Hawaiian or other Pacific Islander",
+#                                "Other race, Non-Hispanic",
+#                                "Multiracial, Non-Hispanic",
+#                                "Hispanic",
+#                                "Don't know/Not sure/Refused"))
 
 #Check variable creation
-3table(brfss$X_RACE, brfss$race, useNA = "always")
+#table(brfss$X_RACE, brfss$race, useNA = "always")
 
 #Check missingness
 #table(brfss$race, useNA = "always")
@@ -1159,60 +1246,26 @@ brfss$race <- factor(brfss$X_RACE,
 #              23779                   3 
 
 #Don't know/not sure cat is 1.79% -> change to NA 
-brfss$race_re <- NA
-brfss <- brfss %>% mutate(race_re = case_when(X_RACE == 1 ~ 1, 
-                                              X_RACE == 2 ~ 2,
-                                              X_RACE == 3 ~ 3, 
-                                              X_RACE == 4 ~ 4,
-                                              X_RACE == 5 ~ 5,
-                                              X_RACE == 6 ~ 6,
-                                              X_RACE == 7 ~ 7,
-                                              X_RACE == 8 ~ 8)) 
-brfss$race_re <- factor(brfss$race_re,
-                     levels = c(1, 2, 3, 4, 5, 6, 7, 8),
-                     labels = c("White, Non-Hispanic", 
-                                "Black, Non-Hispanic",
-                                "American Indian or Alaskan Native, Non-Hispanic",
-                                "Asian, non-Hispanic",
-                                "Native Hawaiian or other Pacific Islander",
-                                "Other race, Non-Hispanic",
-                                "Multiracial, Non-Hispanic",
-                                "Hispanic"))
+#brfss$race_re <- NA
+#brfss <- brfss %>% mutate(race_re = case_when(X_RACE == 1 ~ 1, 
+#                                              X_RACE == 2 ~ 2,
+#                                              X_RACE == 3 ~ 3, 
+#                                              X_RACE == 4 ~ 4,
+#                                              X_RACE == 5 ~ 5,
+#                                              X_RACE == 6 ~ 6,
+#                                              X_RACE == 7 ~ 7,
+#                                              X_RACE == 8 ~ 8)) 
+#brfss$race_re <- factor(brfss$race_re,
+#                     levels = c(1, 2, 3, 4, 5, 6, 7, 8),
+#                     labels = c("White, Non-Hispanic", 
+#                                "Black, Non-Hispanic",
+#                                "American Indian or Alaskan Native, Non-Hispanic",
+#                                "Asian, non-Hispanic",
+#                                "Native Hawaiian or other Pacific Islander",
+#                                "Other race, Non-Hispanic",
+#                                "Multiracial, Non-Hispanic",
+#                                "Hispanic"))
 #table(brfss$race_re, useNA = "always")
-
-
-#Preferred race variable 
-
-#table(brfss$X_PRACE1,useNA="always") #check 
-
-#2.94% missingness for don't know/not sure; refused; and NA
-
-
-#Add labels to race variable
-brfss$prace <- factor(brfss$X_PRACE1,
-                      levels = c(1, 2, 3, 4, 5, 6, 7, 8),
-                      labels = c("White", 
-                                 "Black",
-                                 "American Indian or Alaskan Native",
-                                 "Asian",
-                                 "Native Hawaiian or other Pacific Islander",
-                                 "Other race",
-                                 "No preferred race",
-                                 "Multiracial but preferred race not answered"))
-
-brfss_prace_re <- brfss$prace
-brfss$prace_re[brfss$X_PRACE1==77]<-NA #Change don't know/not sure to NA                                                 
-brfss$prace_re[brfss$X_PRACE1==99]<-NA #missing
-
-
-#Check variable creation
-#table(brfss$X_PRACE1, brfss$prace_re, useNA = "always")
-
-#Check missingness
-#table(brfss$prace_re, useNA = "always")
-
-#cross-tab preferred race and imputted race/ethnicity 
-#table(brfss$prace_re, brfss$race, useNA = "always")
 
 
 #########################
@@ -1225,10 +1278,10 @@ brfss2015_2019 <-  brfss %>% dplyr::select(psu, ststr, state, finalwt,
                                            fluvax, fluvax_re, nofluvax_re,
                                            equality,
                                            birthsex_re,
-                                           sexorient,
+                                           sexualident,
                                            age_grp,
+                                           ethnicity, ethnicity_re,
                                            race, race_re,
-                                           prace, prace_re,
                                            bmi_cat,
                                            edu_cat,
                                            hsld_inc, 
@@ -1251,7 +1304,7 @@ table(brfss2015_2019$dataYear_cat, useNA = "always")
 
 #Number of respondents in aggregated 2015-2019 BRFSS dataset
 dim(brfss2015_2019)
-# 1199325      24
+# 1199325      25
 
 #Look at missingness in exposure and outcome
 prop.table(table(brfss2015_2019$gender_re, useNA = "always")) #13.5% missingness
@@ -1275,7 +1328,7 @@ table(brfss$gender_re, brfss2015_2019$fluvax_re, useNA = "always")
 #Drop missing gender
 brfss2015_2019<-brfss2015_2019 %>% filter(!is.na(gender_re))
 dim(brfss2015_2019)
-#1037081      24
+#1037081      25
 
 #Dropping missing fluvax
 #Number excluded due to non-response, answering “don’t know” or refusing to answer for influenza question
@@ -1288,7 +1341,7 @@ dim(brfss2015_2019)
 #Drop missing fluvax_re
 brfss2015_2019<-brfss2015_2019 %>% filter(!is.na(fluvax_re))
 dim(brfss2015_2019)
-#1016012      24
+#1016012      25
 
 
 
