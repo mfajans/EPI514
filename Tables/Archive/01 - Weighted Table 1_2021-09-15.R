@@ -149,6 +149,8 @@ table1a <- svy_brfss %>%
     # summarize a subset of the covariates 
     include = c(age_grp, race_re, ethnicity_re, edu_cat, sexualident, hsld_inc, 
                 employ_recat_re, health_coverage_re, medcost_re, mentalhlth_re, gender_re),
+    #digits
+    digits = all_categorical() ~ c(0,1),
     # adding labels to table
     label = list(age_grp ~ "Age (years)",
                  race_re ~ "Race",
@@ -188,6 +190,8 @@ table1b <- svy_brfss %>%
     # summarize a subset of the covariates 
     include = c(gender_re, age_grp, race_re, ethnicity_re, edu_cat, sexualident, hsld_inc, 
                 employ_recat_re, health_coverage_re, medcost_re, mentalhlth_re, equality),
+    #digits
+    digits = all_categorical() ~ c(0,1),
     # adding labels to table
     label = list(gender_re ~ "Gender identity",
                  age_grp ~ "Age (years)",
@@ -204,7 +208,7 @@ table1b <- svy_brfss %>%
   as_flex_table() #create word compatible file 
 
 #Save to Word doc 
-save_as_docx("Table 1b" = table1b, path = paste0(outputDir, "Table1b_weighted.docx"))
+save_as_docx("Table 1b" = table1b, path = paste0(dataDir, "Table1b.docx"))
 
 
 ################################################################################        
